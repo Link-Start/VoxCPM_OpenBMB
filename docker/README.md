@@ -21,6 +21,75 @@ This starts:
 
 Access the WebUI at **http://localhost/webui/**.
 
+## Volume Mounts
+
+The compose file maps host directories to container paths. Create these directories at the project root before starting:
+
+```
+VoxCPM/
+├── docker/
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   └── nginx.conf
+├── models/              ← Pretrained model weights (or auto-downloaded via HF)
+│   ├── openbmb__VoxCPM2/
+│   └── openbmb__VoxCPM1.5/
+├── data/                ← Training manifests + audio files
+│   ├── train.jsonl
+│   ├── val.jsonl        (optional)
+│   └── audio/
+│       ├── speaker1_001.wav
+│       └── ...
+├── lora/                ← LoRA training output (created automatically)
+│   └── my-voice-2024/
+│       ├── checkpoints/
+│       ├── logs/
+│       └── train_config.yaml
+└── output/              ← Additional training artifacts
+```
+
+### Mount Reference
+
+| Host Path | Container Path | Purpose |
+|-----------|---------------|---------|
+| `./models/` | `/app/models` | Pretrained model weights and HF cache (`HF_HOME`). Pre-populate with model dirs (e.g., `openbmb__VoxCPM2/`) or leave empty — models auto-download on first run and persist here. |
+| `./data/` | `/app/data` | Training data. Put JSONL manifests and audio files here. In the WebUI, reference paths as `/app/data/train.jsonl`. |
+| `./lora/` | `/app/lora` | LoRA checkpoint output. After training, find results in `lora/<run-name>/checkpoints/`. Also used to resume training from existing checkpoints. |
+| `./output/` | `/app/output` | Miscellaneous training artifacts. |
+
+### Training Data Format
+
+The train manifest is a JSONL file where each line references an audio file:
+
+```json
+{"audio_path": "/app/data/audio/speaker1_001.wav", "text": "Hello world", "speaker": "speaker1"}
+```
+
+Use absolute container paths (`/app/data/...`) in your manifest so the container can find the files.
+
+### Models
+
+If `models/openbmb__VoxCPM2/` exists on the host, the app loads directly from that path — no network access needed. If the directory is empty or missing, `from_pretrained` falls back to `snapshot_download` from HuggingFace Hub.
+
+The Dockerfile sets `HF_HOME=/app/models` so any Hub downloads land in the same mounted volume (matching the pattern in `deploy/Dockerfile.voxcpm-unified`). This means models persist across container restarts regardless of whether they were pre-populated or auto-downloaded.
+
+**Recommended:** Pre-populate to avoid first-run download delay:
+
+```bash
+huggingface-cli download openbmb/VoxCPM2 --local-dir ./models/openbmb__VoxCPM2
+```
+
+The Dockerfile creates empty `/app/models`, `/app/lora`, `/app/output` directories, but the volume mounts override them with your host directories.
+
+## Health Check
+
+The nginx proxy responds with `200 OK` on `GET /` for load balancer health checks (AWS ALB, etc.). This is separate from the WebUI at `/webui/`.
+
+```bash
+curl http://localhost/
+# OK
+```
+
 ## Direct Access (no proxy)
 
 If you want to bypass nginx and access Gradio directly:
@@ -40,21 +109,10 @@ docker build -f docker/Dockerfile -t voxcpm-training .
 # Run with GPU access (no reverse proxy)
 docker run --gpus all -p 7860:7860 \
     -v ./models:/app/models \
+    -v ./data:/app/data \
     -v ./lora:/app/lora \
     -v ./output:/app/output \
     voxcpm-training
-```
-
-## Model Weights
-
-Models are **auto-downloaded** from HuggingFace Hub on first use. The `/app/models` volume persists them across container restarts so they don't need to be re-downloaded.
-
-To pre-populate (avoids download at startup):
-
-```
-models/
-├── openbmb__VoxCPM2/       # VoxCPM2 (preferred)
-└── openbmb__VoxCPM1.5/     # VoxCPM1.5 (fallback)
 ```
 
 ## Environment Variables
@@ -88,17 +146,10 @@ Training subprocess output is streamed to stdout, visible via:
 docker compose -f docker/docker-compose.yml logs -f training-webui
 ```
 
-## Volumes
-
-| Mount Point | Purpose |
-|-------------|---------|
-| `/app/models` | Pre-trained model weights (read-only OK) |
-| `/app/lora` | LoRA checkpoints — training output is saved here |
-| `/app/output` | Additional training artifacts |
-
 ## Troubleshooting
 
 - **"no NVIDIA GPU detected"**: Ensure the NVIDIA Container Toolkit is installed and `docker run --gpus all nvidia-smi` works.
 - **OOM errors**: Reduce batch size in the WebUI or use a GPU with more VRAM.
 - **WebUI not accessible**: Check that port 80 (nginx) or 7860 (direct) isn't blocked by a firewall.
 - **WebSocket errors behind proxy**: Ensure your proxy forwards `Upgrade` and `Connection` headers (the included nginx.conf handles this).
+- **Health check failing**: Ensure nginx is running — `curl http://localhost/` should return `OK`.

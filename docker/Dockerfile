@@ -38,14 +38,15 @@ RUN pip install --no-cache-dir -e .
 COPY . /app/
 
 # Create default directories and declare volumes
-RUN mkdir -p /app/lora /app/models /app/output
-VOLUME ["/app/models", "/app/lora", "/app/output"]
+RUN mkdir -p /app/lora /app/models /app/output /app/data
+VOLUME ["/app/models", "/app/lora", "/app/output", "/app/data"]
 
 EXPOSE 7860
 
 # Environment variables for configuration
 ENV GRADIO_SERVER_PORT=7860
 ENV GRADIO_ROOT_PATH=""
+ENV HF_HOME=/app/models
 
 # Default: launch training WebUI
 CMD ["python", "lora_ft_webui.py"]

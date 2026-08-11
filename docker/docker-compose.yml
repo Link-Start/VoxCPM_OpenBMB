@@ -8,9 +8,20 @@ services:
     ports:
       - "7860:7860"
     volumes:
-      - ../models:/app/models        # Pre-downloaded model weights
-      - ../lora:/app/lora            # LoRA checkpoints (input/output)
-      - ../output:/app/output        # Training output artifacts
+      # Pretrained model weights + HF cache (HF_HOME=/app/models in Dockerfile).
+      # Pre-populate with model dirs, or leave empty — auto-downloads on first run.
+      - ../models:/app/models
+
+      # Training data: JSONL manifests and audio files.
+      # Reference paths inside the container as /app/data/train.jsonl etc.
+      - ../data:/app/data
+
+      # LoRA training output — checkpoints, configs, logs.
+      # Results appear in lora/<run-name>/checkpoints/ after training.
+      - ../lora:/app/lora
+
+      # Additional training artifacts.
+      - ../output:/app/output
     deploy:
       resources:
         reservations:
