@@ -121,6 +121,7 @@ docker run --gpus all -p 7860:7860 \
 |----------|---------|-------------|
 | `GRADIO_SERVER_PORT` | `7860` | Port for the WebUI server |
 | `GRADIO_ROOT_PATH` | `""` | URL prefix when behind a reverse proxy (e.g., `/webui`) |
+| `FORWARDED_ALLOW_IPS` | `*` | IPs allowed to set `X-Forwarded-Proto`. Set to `*` when behind a Docker reverse proxy so Gradio generates `https://` file URLs. |
 
 ## Reverse Proxy
 
@@ -153,3 +154,4 @@ docker compose -f docker/docker-compose.yml logs -f training-webui
 - **WebUI not accessible**: Check that port 80 (nginx) or 7860 (direct) isn't blocked by a firewall.
 - **WebSocket errors behind proxy**: Ensure your proxy forwards `Upgrade` and `Connection` headers (the included nginx.conf handles this).
 - **Health check failing**: Ensure nginx is running — `curl http://localhost/` should return `OK`.
+- **Mixed-content / audio not playing over HTTPS**: Gradio generates `http://` file URLs because uvicorn doesn't trust the `X-Forwarded-Proto` header from the Docker bridge network. The compose file sets `FORWARDED_ALLOW_IPS=*` to fix this. If you run without compose, pass `-e FORWARDED_ALLOW_IPS=*` to `docker run`.
