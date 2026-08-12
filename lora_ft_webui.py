@@ -1323,9 +1323,7 @@ with gr.Blocks(title="VoxCPM LoRA WebUI", theme=gr.themes.Soft(), css=custom_css
     )
 
 if __name__ == "__main__":
-    # Ensure lora directory exists
     os.makedirs("lora", exist_ok=True)
-
     port = int(os.environ.get("GRADIO_SERVER_PORT", "7860"))
     root_path = os.environ.get("GRADIO_ROOT_PATH", "")
 
