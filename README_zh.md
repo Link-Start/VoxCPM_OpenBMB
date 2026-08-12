@@ -32,6 +32,10 @@
   <a href="https://discord.gg/KZUx7tVNwz" style="display:inline-block;vertical-align:middle;">
     <img src="./assets/discord-logo.png" width="16" height="16" style="vertical-align:middle;"> Discord
   </a>
+  &nbsp;|&nbsp;
+  <a href="https://modelbest.feishu.cn/wiki/UtWxwcERfiRIpIkBOjuc3h9tn1D?fromScene=spaceOverview" style="display:inline-block;vertical-align:middle;">
+    📚 MiniCPM 知识库
+  </a>
 </p>
 
 VoxCPM 是一个**无离散音频分词器**（Tokenizer-Free）的语音合成系统，通过端到端的**扩散自回归架构**直接生成连续语音表征，绕过对音频的离散编码步骤，实现高度自然且富有表现力的语音合成。

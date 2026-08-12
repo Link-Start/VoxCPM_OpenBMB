@@ -32,6 +32,10 @@
   <a href="https://discord.gg/KZUx7tVNwz" style="display:inline-block;vertical-align:middle;">
     <img src="./assets/discord-logo.png" width="16" height="16" style="vertical-align:middle;"> Discord
   </a>
+  &nbsp;|&nbsp;
+  <a href="https://modelbest.feishu.cn/wiki/UtWxwcERfiRIpIkBOjuc3h9tn1D?fromScene=spaceOverview" style="display:inline-block;vertical-align:middle;">
+    📚 MiniCPM Wiki
+  </a>
 </p>
 
 VoxCPM is a **tokenizer-free** Text-to-Speech system that directly generates continuous speech representations via an end-to-end **diffusion autoregressive architecture**, bypassing discrete tokenization to achieve highly natural and expressive synthesis.
