@@ -71,7 +71,7 @@ Use absolute container paths (`/app/data/...`) in your manifest so the container
 
 If `models/openbmb__VoxCPM2/` exists on the host, the app loads directly from that path — no network access needed. If the directory is empty or missing, `from_pretrained` falls back to `snapshot_download` from HuggingFace Hub.
 
-The Dockerfile sets `HF_HOME=/app/models` so any Hub downloads land in the same mounted volume (matching the pattern in `deploy/Dockerfile.voxcpm-unified`). This means models persist across container restarts regardless of whether they were pre-populated or auto-downloaded.
+The Dockerfile sets `HF_HOME=/app/models` so any Hub downloads land in the same mounted volume. This means models persist across container restarts regardless of whether they were pre-populated or auto-downloaded.
 
 **Recommended:** Pre-populate to avoid first-run download delay:
 
