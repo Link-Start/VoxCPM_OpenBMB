@@ -30,7 +30,6 @@ services:
     environment:
       - GRADIO_SERVER_PORT=7860
       - GRADIO_ROOT_PATH=/webui      # Matches nginx location block
-      # - VOXCPM_LANG=en             # Uncomment for English UI (default: zh)
     restart: unless-stopped
 
   nginx:

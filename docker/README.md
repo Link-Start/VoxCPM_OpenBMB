@@ -120,7 +120,6 @@ docker run --gpus all -p 7860:7860 \
 |----------|---------|-------------|
 | `GRADIO_SERVER_PORT` | `7860` | Port for the WebUI server |
 | `GRADIO_ROOT_PATH` | `""` | URL prefix when behind a reverse proxy (e.g., `/webui`) |
-| `VOXCPM_LANG` | `zh` | Default UI language (`zh` or `en`) |
 
 ## Reverse Proxy
 
