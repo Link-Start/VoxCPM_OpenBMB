@@ -13,6 +13,8 @@ __pycache__/
 *.pyo
 *.egg-info/
 .venv/
+venv/
+.venv-bench/
 
 # Docker config (not needed inside image)
 docker/docker-compose.yml
